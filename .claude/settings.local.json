@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(py -m pytest tests/ -v)",
+      "Bash(where python)",
+      "Bash(\"C:\\Users\\리드비나\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe\" -m pip install -r requirements.txt)",
+      "Bash(py --version)",
+      "Bash(\"/c/Users/리드비나/AppData/Local/Microsoft/WindowsApps/python\" --version)",
+      "Bash(powershell:*)",
+      "Bash(cmd:*)",
+      "Bash(winget:*)",
+      "Bash(uvicorn:*)",
+      "Bash(mkdir:*)",
+      "Bash(taskkill:*)",
+      "Bash(curl:*)",
+      "Bash(rm:*)",
+      "Bash(git init:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 모드 - 회원 관리 시스템</title>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+        body {
+            font-family: '맑은 고딕', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .nav-menu {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border: 2px solid white;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover {
+            background: white;
+            color: #e74c3c;
+        }
+        .content {
+            padding: 30px;
+        }
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+        .btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-danger {
+            background: linear-gradient(45deg, #f44336, #da190b);
+        }
+        .btn-edit {
+            background: linear-gradient(45deg, #ff9800, #e68900);
+        }
+        .members-list {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .members-list h2 {
+            background: #f1f3f4;
+            padding: 20px;
+            margin: 0;
+            color: #333;
+        }
+        .member-card {
+            border-bottom: 1px solid #eee;
+            padding: 20px;
+            transition: background-color 0.3s;
+        }
+        .member-card:hover {
+            background-color: #f8f9fa;
+        }
+        .member-card:last-child {
+            border-bottom: none;
+        }
+        .member-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+        .member-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
+        .member-phone {
+            color: #666;
+        }
+        .member-date {
+            color: #888;
+            font-size: 0.9em;
+        }
+        .member-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .member-info {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .member-actions {
+                justify-content: center;
+            }
+            .nav-menu {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-menu">
+                <a href="/" class="nav-btn">🏠 메인으로</a>
+            </div>
+            <h1>🔧 관리자 모드</h1>
+            <p>회원 등록 및 관리</p>
+        </div>
+        
+        <div class="content">
+            <div id="alert" class="alert"></div>
+            
+            <!-- 회원 등록 폼 -->
+            <div class="form-section">
+                <h2>👤 새 회원 등록</h2>
+                <form id="memberForm">
+                    <div class="form-group">
+                        <label for="name">이름</label>
+                        <input type="text" id="name" name="name" placeholder="회원 이름을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">전화번호</label>
+                        <input type="text" id="phone" name="phone_number" placeholder="01012345678 또는 010-1234-5678" maxlength="13" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">시작일</label>
+                        <input type="date" id="startDate" name="start_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">종료일 (선택사항)</label>
+                        <input type="date" id="endDate" name="end_date">
+                    </div>
+                    <button type="submit" class="btn">✅ 회원 등록</button>
+                    <button type="button" class="btn btn-edit" id="cancelEdit" style="display:none;">❌ 취소</button>
+                </form>
+            </div>
+            
+            <!-- 회원 목록 -->
+            <div class="members-list">
+                <h2>📋 회원 목록</h2>
+                <div id="loading" class="loading">회원 정보를 불러오는 중...</div>
+                <div id="membersList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editingMemberId = null;
+        
+        // 페이지 로드 시 회원 목록 불러오기
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMembers();
+            
+            // 오늘 날짜를 기본값으로 설정
+            const today = new Date().toISOString().slice(0, 10);
+            document.getElementById('startDate').value = today;
+            
+            // 전화번호 실시간 포맷팅
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^0-9]/g, '');
+                
+                if (value.length <= 11 && value.startsWith('010')) {
+                    if (value.length >= 7) {
+                        value = value.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+                    } else if (value.length >= 4) {
+                        value = value.replace(/(\d{3})(\d{4})/, '$1-$2');
+                    }
+                }
+                
+                e.target.value = value;
+            });
+        });
+        
+        // 회원 목록 불러오기
+        async function loadMembers() {
+            try {
+                const response = await fetch('/api/v1/members/');
+                const members = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                
+                const membersList = document.getElementById('membersList');
+                if (members.length === 0) {
+                    membersList.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">등록된 회원이 없습니다.</div>';
+                    return;
+                }
+                
+                membersList.innerHTML = members.map(member => `
+                    <div class="member-card">
+                        <div class="member-info">
+                            <div class="member-name">${member.name}</div>
+                            <div class="member-phone">📞 ${member.phone_number}</div>
+                            <div class="member-date">
+                                📅 ${formatDate(member.start_date)}
+                                ${member.end_date ? ` ~ ${formatDate(member.end_date)}` : ''}
+                            </div>
+                            <div class="member-actions">
+                                <button class="btn btn-edit" onclick="editMember(${member.id})">✏️ 수정</button>
+                                <button class="btn btn-danger" onclick="deleteMember(${member.id})">🗑️ 삭제</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                showAlert('회원 목록을 불러오는데 실패했습니다.', 'error');
+            }
+        }
+        
+        // 회원 등록/수정 폼 제출
+        document.getElementById('memberForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            // 전화번호 자동 포맷팅
+            const rawPhone = formData.get('phone_number').trim().replace(/[^0-9]/g, '');
+            let formattedPhone = rawPhone;
+            
+            if (rawPhone.length === 11 && rawPhone.startsWith('010')) {
+                formattedPhone = rawPhone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+            }
+            
+            const memberData = {
+                name: formData.get('name').trim(),
+                phone_number: formattedPhone,
+                start_date: formData.get('start_date'),
+                end_date: formData.get('end_date') ? formData.get('end_date') : null
+            };
+            
+            try {
+                let response;
+                if (editingMemberId) {
+                    // 수정
+                    response = await fetch(`/api/v1/members/${editingMemberId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(memberData)
+                    });
+                } else {
+                    // 새 등록
+                    response = await fetch('/api/v1/members/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(memberData)
+                    });
+                }
+                
+                if (response.ok) {
+                    showAlert(editingMemberId ? '회원 정보가 수정되었습니다!' : '새 회원이 등록되었습니다!', 'success');
+                    resetForm();
+                    loadMembers();
+                } else {
+                    const error = await response.json();
+                    
+                    // 상세한 오류 메시지 표시
+                    let errorMessage = error.detail || '오류가 발생했습니다.';
+                    if (error.errors && Array.isArray(error.errors)) {
+                        errorMessage += '\n상세: ' + error.errors.map(e => e.msg).join(', ');
+                    }
+                    showAlert(errorMessage, 'error');
+                }
+            } catch (error) {
+                showAlert('네트워크 오류가 발생했습니다.', 'error');
+            }
+        });
+        
+        // 회원 수정
+        async function editMember(id) {
+            try {
+                const response = await fetch(`/api/v1/members/${id}`);
+                const member = await response.json();
+                
+                document.getElementById('name').value = member.name;
+                document.getElementById('phone').value = member.phone_number;
+                document.getElementById('startDate').value = member.start_date;
+                document.getElementById('endDate').value = member.end_date || '';
+                
+                editingMemberId = id;
+                document.querySelector('.form-section h2').textContent = '✏️ 회원 정보 수정';
+                document.querySelector('button[type="submit"]').textContent = '💾 수정 완료';
+                document.getElementById('cancelEdit').style.display = 'inline-block';
+                
+                // 폼으로 스크롤
+                document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                showAlert('회원 정보를 불러오는데 실패했습니다.', 'error');
+            }
+        }
+        
+        // 수정 취소
+        document.getElementById('cancelEdit').addEventListener('click', resetForm);
+        
+        function resetForm() {
+            document.getElementById('memberForm').reset();
+            editingMemberId = null;
+            document.querySelector('.form-section h2').textContent = '👤 새 회원 등록';
+            document.querySelector('button[type="submit"]').textContent = '✅ 회원 등록';
+            document.getElementById('cancelEdit').style.display = 'none';
+            
+            // 오늘 날짜를 다시 설정
+            const today = new Date().toISOString().slice(0, 10);
+            document.getElementById('startDate').value = today;
+        }
+        
+        // 회원 삭제
+        async function deleteMember(id) {
+            if (!confirm('정말로 이 회원을 삭제하시겠습니까?')) return;
+            
+            try {
+                const response = await fetch(`/api/v1/members/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showAlert('회원이 삭제되었습니다.', 'success');
+                    loadMembers();
+                } else {
+                    showAlert('삭제에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                showAlert('네트워크 오류가 발생했습니다.', 'error');
+            }
+        }
+        
+        // 알림 메시지 표시
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 날짜 포맷팅
+        function formatDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            return date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>

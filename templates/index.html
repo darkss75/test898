@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>헬스장 출입 확인</title>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+        body {
+            font-family: '맑은 고딕', Arial, sans-serif;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            padding: 50px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        .header {
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 3em;
+            color: #4CAF50;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .header p {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .nav-menu {
+            margin-bottom: 20px;
+        }
+        .nav-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .check-in-section {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            padding: 40px;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .check-in-section h2 {
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+        }
+        .phone-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 20px;
+            font-size: 2em;
+            text-align: center;
+            border: 3px solid white;
+            border-radius: 15px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            transition: all 0.3s;
+        }
+        .phone-input:focus {
+            outline: none;
+            border-color: #ffeb3b;
+            box-shadow: 0 0 20px rgba(255,235,59,0.5);
+        }
+        .check-btn {
+            background: white;
+            color: #4CAF50;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .check-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        .result-section {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 15px;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .result-success {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+        }
+        .result-error {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        .result-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+        .welcome-message {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .member-info {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        .remaining-days {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .multiple-members {
+            text-align: left;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .multiple-members h3 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .member-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            font-size: 1.1em;
+        }
+        .member-item:last-child {
+            border-bottom: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+            .header h1 {
+                font-size: 2.2em;
+            }
+            .check-in-section h2 {
+                font-size: 1.8em;
+            }
+            .phone-input {
+                font-size: 1.5em;
+                padding: 15px;
+            }
+            .welcome-message {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏋️‍♂️ 헬스장</h1>
+            <p>회원 출입 확인 시스템</p>
+        </div>
+        
+        <div class="nav-menu">
+            <a href="/admin" class="nav-btn">🔧 관리자 모드</a>
+        </div>
+        
+        <div class="check-in-section">
+            <h2>출입 확인</h2>
+            <form id="checkInForm">
+                <div class="form-group">
+                    <label for="phoneCheck">전화번호 뒷자리 4자리를 입력하세요</label>
+                    <input type="text" id="phoneCheck" name="phone_check" class="phone-input" placeholder="0000" maxlength="4" required>
+                </div>
+                <button type="submit" class="check-btn">🔍 출입 확인</button>
+            </form>
+        </div>
+        
+        <!-- 출입 확인 결과 -->
+        <div id="resultSection" class="result-section">
+            <div id="welcomeMessage" class="welcome-message"></div>
+            <div id="memberInfo" class="member-info"></div>
+            <div id="remainingDays" class="remaining-days"></div>
+            <div id="multipleMembersList" class="multiple-members"></div>
+        </div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 출입 확인 폼 숫자만 입력 허용
+            const phoneCheckInput = document.getElementById('phoneCheck');
+            phoneCheckInput.addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+            
+            // 자동 포커스
+            phoneCheckInput.focus();
+        });
+        
+        // 출입 확인 폼 제출
+        document.getElementById('checkInForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const phoneCheck = document.getElementById('phoneCheck').value.trim();
+            
+            if (phoneCheck.length !== 4) {
+                showResult('error', '⚠️ 전화번호 뒷자리 4자리를 정확히 입력해주세요', '', '');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/v1/members/check/${phoneCheck}`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    displaySuccessResult(result);
+                } else if (response.status === 404) {
+                    showResult('error', '🚫 등록되지 않은 회원입니다', '', '다시 확인해주세요');
+                } else if (response.status === 409) {
+                    const error = await response.json();
+                    showMultipleMembersResult(error.detail);
+                } else {
+                    const error = await response.json();
+                    showResult('error', '❌ 확인 중 오류가 발생했습니다', '', error.detail || '');
+                }
+            } catch (error) {
+                showResult('error', '🌐 네트워크 오류가 발생했습니다', '', '잠시 후 다시 시도해주세요');
+            }
+        });
+        
+        // 성공 결과 표시
+        function displaySuccessResult(result) {
+            const resultClass = getResultClass(result.status);
+            showResult(resultClass, result.welcome_message, `📞 ${result.member.phone_number}`, `⏰ ${result.remaining_message}`);
+        }
+        
+        // 여러 회원 결과 표시
+        function showMultipleMembersResult(errorDetail) {
+            const resultSection = document.getElementById('resultSection');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            const memberInfo = document.getElementById('memberInfo');
+            const remainingDays = document.getElementById('remainingDays');
+            const multipleMembersList = document.getElementById('multipleMembersList');
+            
+            resultSection.className = 'result-section result-warning';
+            welcomeMessage.textContent = '⚠️ ' + errorDetail.message;
+            memberInfo.textContent = '';
+            remainingDays.textContent = '전체 전화번호를 확인해주세요';
+            
+            // 여러 회원 목록 표시
+            multipleMembersList.innerHTML = `
+                <h3>동일한 뒷자리를 가진 회원들:</h3>
+                ${errorDetail.members.map(m => 
+                    `<div class="member-item">👤 ${m.name} - ${m.phone}</div>`
+                ).join('')}
+            `;
+            multipleMembersList.style.display = 'block';
+            
+            resultSection.style.display = 'block';
+            
+            // 자동 숨기기
+            setTimeout(hideResult, 7000);
+        }
+        
+        // 일반 결과 표시
+        function showResult(type, welcome, info, remaining) {
+            const resultSection = document.getElementById('resultSection');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            const memberInfo = document.getElementById('memberInfo');
+            const remainingDays = document.getElementById('remainingDays');
+            const multipleMembersList = document.getElementById('multipleMembersList');
+            
+            resultSection.className = `result-section result-${type}`;
+            welcomeMessage.textContent = welcome;
+            memberInfo.textContent = info;
+            remainingDays.textContent = remaining;
+            multipleMembersList.style.display = 'none';
+            
+            resultSection.style.display = 'block';
+            
+            // 자동 숨기기
+            const hideDelay = type === 'error' ? 3000 : 5000;
+            setTimeout(hideResult, hideDelay);
+        }
+        
+        // 결과 숨기기
+        function hideResult() {
+            const resultSection = document.getElementById('resultSection');
+            const phoneInput = document.getElementById('phoneCheck');
+            
+            resultSection.style.display = 'none';
+            phoneInput.value = '';
+            phoneInput.focus();
+        }
+        
+        // 상태에 따른 CSS 클래스 반환
+        function getResultClass(status) {
+            switch(status) {
+                case '만료':
+                    return 'error';
+                case '오늘만료':
+                    return 'warning';
+                case '유효':
+                case '무제한':
+                    return 'success';
+                default:
+                    return 'success';
+            }
+        }
+    </script>
+</body>
+</html>
