@@ -24,8 +24,10 @@ app = FastAPI(
 # 템플릿 설정
 templates = Jinja2Templates(directory="templates")
 
-# 정적 파일 설정
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# 정적 파일 설정 (디렉토리가 존재할 때만)
+import os
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(IntegrityError, integrity_error_handler)
